@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Sipariş Sevk Raporu</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/datatables.min.css">
+
+    <script type="text/javascript" src="js/jquery-3.6.3.min.js"></script>
+    <script src="js/datatables.min.js"></script>
+    <script src="css/dataTables.bootsrap5.min.css"></script>
+
+
+</head>
+<body class="dt-example bg-dark ">
+<div class="container mt-5">
+    <div class="bg-success w-25 my-5 rounded-pill  mx-auto">
+        <h3 class="text-center text-white">Sevk Edilen Siparişler</h3>
+
+    </div>
+    <div id="example_wrapper"></div>
+    <div class="form-group d-flex gap-2 justify-content-center  align-items-center col-12">
+        <label for="search" class="text-success shadow border p-1 border-1 border-success text-center rounded-pill col-3 align-items-center" >Arama Kriteri:</label>
+        <input type="text" class="rounded-pill p-1 col-6" id="search">
+        <button id="get-data-button" class="btn btn-outline-success rounded-pill col-3">Verileri Getir</button>
+    </div>
+    Table
+    <table id="example" class="table table-dark table-responsive table-hover table-striped table-bordered"
+           style="width:100%">
+        <thead>
+        <tr class="bg-danger">
+            <th>Sıra No</th>
+            <th>receiver_name</th>
+            <th>erp_sip_no</th>
+            <th>pazaryeri</th>
+            <th>pazaryeri_sip_no</th>
+            <th>kutulama_tarihi</th>
+            <th>nakliyeci</th>
+            <th>kargo_takip_kodu</th>
+            <th>paket_sevk_no</th>
+            <th>Desi</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    var data = []
+    $(document).ready(function () {
+        // Tabloyu ilk yükleme sırasında oluşturun
+        var table = $('#example').DataTable({
+            language: {
+                search: "Tablo İçerisinde Arayın :",
+                "url": "Turkish.json",
+            },
+            searching: true, // Tablo arama özelliğini aktif et
+            // serverSide: true,
+            processing: true,
+            columns: [
+                {data: null},  // Sıra No sütunu için boş sütun ekleyin
+                {data: 'receiver_name'},
+                {data: 'erp_sip_no'},
+                {data: 'pazaryeri'},
+                {data: 'pazaryeri_sip_no'},
+                {data: 'kutulama_tarihi'},
+                {data: 'nakliyeci'},
+                {data: 'kargo_takip_kodu'},
+                {data: 'paket_sevk_no'},
+                {data: 'desi'},
+            ]
+        });
+
+        // Sıra No sütununa sıra no verisi ekleyin
+        table.on('order.dt search.dt', function () {
+            table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+                cell.innerHTML = i + 1;
+            });
+        }).draw();
+
+        // Arama alanını etkinleştirin
+        $('#search').on('input', function () {
+            // Arka plandaki verileri temizleyin
+            table.clear();
+        });
+
+        $('#search').on('keyup', function (event) {
+            if (event.keyCode === 13) {
+                // Enter tuşuna basıldığında veri getirin
+                getData();
+            }
+        });
+
+        // Arama butonuna tıklandığında verileri getirin
+        $('#get-data-button').click(function () {
+            getData();
+        });
+
+        function getData() {
+
+            // Arama alanında veri varsa, veri çekin
+            if ($("#search").val().trim()) {
+                var search =$('#search').val()  // Arama alanındaki veri
+                // Eğer aradığınız veri arkaplandaki veriler içinde yoksa api isteği gönder
+                if(!data.includes(search)){
+                    $.ajax({
+                        url: "http://127.0.0.1:8000/order_dispatch",
+                        type: "GET",
+                        data: {search: search},
+                        success: function (response) {
+                            if (response.length == 0) {
+                                $('#example_wrapper').prepend('<div id="alert" class="alert alert-danger" role="alert">Arama kriteriyle eşleşen veri bulunamadı!</div>')
+                                $('#alert').hide().fadeIn(1000);
+                                setTimeout(function () {
+                                    $('#alert').fadeOut(1000);
+                                }, 5000)
+                            } else {
+                                // Önce Arka plandaki verileri temizleyin
+                                table.clear();
+
+                                data.push(search) // Arkaplanda ki verilere ekle
+                                // Tobloyu verileriyle güncelleyin
+                                table.rows.add(response);
+                                table.draw();
+                            }
+                        }
+                    });
+                }
+
+            } else {
+                // Arama alanında veri yoksa uyarı verin
+                alert("Lütfen arama kriteri girin!");
+            }
+        }
+    });
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DataTables - API example</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css"
+          integrity="sha384-TJmwRtuOQ2sxV8q9s3d1VJZFFMvZDUa2QOaLziIY61rUvx8jKf6U9xt6pE1sdKc/" crossorigin="anonymous">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
+</head>
+<body class="dt-example">
+<div class="container mt-5">
+    <!-- Table -->
+    <table id="example" class="table table-responsive table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+            <th>receiver_name</th>
+            <th>erp_sip_no</th>
+            <th>pazaryeri</th>
+            <th>pazaryeri_sip_no</th>
+            <th>kutulama_tarihi</th>
+            <th>nakliyeci</th>
+            <th>kargo_takip_kodu</th>
+            <th>paket_sevk_no</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<!-- JQuery -->
+<script src="js/jquery-3.6.3.min.js"></script>
+
+<!-- DataTables JS -->
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.22/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            processing: true, // 'Yükleniyor' gösterimini etkinleştirin
+            serverSide: true, // Sunucu taraflı işlemleri etkinleştirin
+            ajax: {
+                url: "http://127.0.0.1:8000/order_dispatch", // Verilerin yükleneceği URL
+                type: "GET" // Veri çekme metodu (GET veya POST)
+            },
+            columns: [ // Verilerin gösterileceği sütunlar
+                {data: "receiver_name"},
+                {data: "erp_sip_no"},
+                {data: "pazaryeri"},
+                {data: "pazaryeri_sip_no"},
+                {data: "kutulama_tarihi"},
+                {data: "nakliyeci"},
+                {data: "kargo_takip_kodu"},
+                {data: "paket_sevk_no"}
+            ]
+        });
+    });
+</script>
+</body>
